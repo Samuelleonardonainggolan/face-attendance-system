@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/andikatampubolon10/hris-backend/pkg/models"
+	"golang-rest-api-template/pkg/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

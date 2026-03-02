@@ -2,12 +2,12 @@ package api
 
 import (
 	"context"
-	"github.com/andikatampubolon10/hris-backend/pkg/cache"
-	"github.com/andikatampubolon10/hris-backend/pkg/database"
-	"github.com/andikatampubolon10/hris-backend/pkg/middleware"
+	"golang-rest-api-template/pkg/cache"
+	"golang-rest-api-template/pkg/database"
+	"golang-rest-api-template/pkg/middleware"
 	"time"
 
-	docs "github.com/andikatampubolon10/hris-backend/docs"
+	docs "golang-rest-api-template/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"

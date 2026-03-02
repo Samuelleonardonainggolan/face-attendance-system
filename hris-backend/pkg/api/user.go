@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/andikatampubolon10/hris-backend/pkg/auth"
-	"github.com/andikatampubolon10/hris-backend/pkg/database"
-	"github.com/andikatampubolon10/hris-backend/pkg/models"
+	"golang-rest-api-template/pkg/auth"
+	"golang-rest-api-template/pkg/database"
+	"golang-rest-api-template/pkg/models"
 	"net/http"
 
 	"gorm.io/gorm"

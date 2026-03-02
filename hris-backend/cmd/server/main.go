@@ -1,81 +1,57 @@
-// cmd/server/main.go
 package main
 
 import (
-    "log"
+	"context"
+	"golang-rest-api-template/pkg/api"
+	"golang-rest-api-template/pkg/cache"
+	"golang-rest-api-template/pkg/database"
+	"log"
 
-    "github.com/andikatampubolon10/hris-backend/internal/config"
-    "github.com/andikatampubolon10/hris-backend/internal/service"
-    "github.com/andikatampubolon10/hris-backend/pkg/api/handler"
-    "github.com/andikatampubolon10/hris-backend/pkg/database"
-    "github.com/andikatampubolon10/hris-backend/pkg/database/repository"
-    "github.com/andikatampubolon10/hris-backend/pkg/middleware"
-    "github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
+	"github.com/gin-gonic/gin"
 )
 
+// @title           Swagger Example API
+// @version         1.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8001
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey JwtAuth
+// @in header
+// @name Authorization
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-    // Load configuration
-    cfg := config.LoadConfig()
+	redisClient := cache.NewRedisClient()
+	db := database.NewDatabase()
+	dbWrapper := &database.GormDatabase{DB: db}
+	mongo := database.SetupMongoDB()
+	ctx := context.Background()
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
 
-    // Setup MongoDB
-    mongodb, err := database.NewMongoDB(cfg.MongoURI, cfg.DatabaseName)
-    if err != nil {
-        log.Fatal("Failed to connect to MongoDB:", err)
-    }
-    defer mongodb.Disconnect()
+	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 
-    log.Println("✅ Database connected successfully")
+	r := api.NewRouter(logger, mongo, dbWrapper, redisClient, &ctx)
 
-    // Initialize repositories
-    userRepo := repository.NewUserRepository(mongodb.Database)
-
-    // Initialize services
-    authService := service.NewAuthService(userRepo, cfg)
-
-    // Initialize handlers
-    authHandler := handler.NewAuthHandler(authService)
-    healthHandler := handler.NewHealthHandler()
-
-    // Setup Gin
-    if cfg.Environment == "production" {
-        gin.SetMode(gin.ReleaseMode)
-    }
-
-    router := gin.Default()
-
-    // Global middleware
-    router.Use(middleware.CORS())
-    router.Use(middleware.Logger())
-
-    // Health check
-    router.GET("/health", healthHandler.HealthCheck)
-
-    // API v1
-    v1 := router.Group("/api/v1")
-    {
-        // Public routes
-        auth := v1.Group("/auth")
-        {
-            auth.POST("/login", authHandler.Login)
-            auth.POST("/refresh", authHandler.RefreshToken)
-        }
-
-        // Protected routes
-        protected := v1.Group("")
-        protected.Use(middleware.AuthMiddleware(cfg.JWTSecret))
-        {
-            protected.POST("/logout", authHandler.Logout)
-        }
-    }
-
-    // Start server
-    port := cfg.ServerPort
-    log.Printf("🚀 Server running on port %s", port)
-    log.Printf("📍 Environment: %s", cfg.Environment)
-    log.Printf("🔗 Health check: http://localhost:%s/health", port)
-    log.Printf("🔗 API Base URL: http://localhost:%s/api/v1", port)
-
-    if err := router.Run(":" + port); err != nil {
-        log.Fatal("Failed to start server:", err)
-    }
+	if err := r.Run(":8001"); err != nil {
+		log.Fatal(err)
+	}
 }

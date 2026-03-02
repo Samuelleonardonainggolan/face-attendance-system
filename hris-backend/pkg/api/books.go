@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"github.com/andikatampubolon10/hris-backend/pkg/cache"
-	"github.com/andikatampubolon10/hris-backend/pkg/database"
-	"github.com/andikatampubolon10/hris-backend/pkg/models"
+	"golang-rest-api-template/pkg/cache"
+	"golang-rest-api-template/pkg/database"
+	"golang-rest-api-template/pkg/models"
 	"net/http"
 	"strconv"
 	"time"

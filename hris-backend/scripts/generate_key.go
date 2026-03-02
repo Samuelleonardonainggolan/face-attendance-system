@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/andikatampubolon10/hris-backend/pkg/auth"
+	"golang-rest-api-template/pkg/auth"
 )
 
 func main() {
